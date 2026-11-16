@@ -1,118 +1,85 @@
-index.html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perkpop - Earn Points</title>
+<title>Perkpop - Create Account</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f1ff;color:#24134b}
-header{background:#6428c9;color:white;padding:22px;text-align:center}
-header h1{margin:0;font-size:30px}
-main{max-width:420px;margin:35px auto;padding:25px;background:white;border-radius:18px;box-shadow:0 5px 25px #ddd}
-h2{text-align:center;color:#6428c9}
-p{text-align:center;color:#665b79}
-input{width:100%;padding:14px;margin:9px 0;border:1px solid #ddd;border-radius:9px;font-size:16px}
-button{width:100%;padding:14px;background:#6428c9;color:white;border:0;border-radius:9px;font-size:16px;margin-top:12px}
-button.secondary{background:#eee;color:#6428c9}
-#dashboard{display:none}
-.balance{background:#f0e8ff;padding:20px;border-radius:12px;text-align:center;margin:20px 0}
-.balance strong{font-size:32px;color:#6428c9}
-#message{font-size:14px;color:#b00020}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5efff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  background: white;
+  padding: 30px 24px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 30px #0001;
+}
+h1 { color: #7928ca; text-align: center; }
+p { text-align: center; color: #777; }
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 9px 0;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  font-size: 15px;
+}
+button {
+  width: 100%;
+  padding: 15px;
+  background: #7928ca;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+button:hover { background: #5e1da0; }
+#message { color: #7928ca; font-size: 14px; }
 </style>
 </head>
 <body>
-<header>
-<h1>💜 Perkpop</h1>
-<p style="color:white">Play. Complete tasks. Earn points.</p>
-</header>
+<div class="container">
+  <h1>💜 PERKPOP</h1>
+  <p>Play • Complete Tasks • Earn Points</p>
+  <h2>Create Your Account</h2>
 
-<main id="auth">
-<h2>Create your account</h2>
-<p>Join Perkpop today!</p>
-<input id="name" placeholder="Your name">
-<input id="email" type="email" placeholder="Email address">
-<input id="password" type="password" placeholder="Password">
-<button onclick="register()">Create account</button>
-<button class="secondary" onclick="login()">Login instead</button>
-<p id="message"></p>
-</main>
+  <form id="registerForm">
+    <input id="name" placeholder="Full name" required>
+    <input id="email" type="email" placeholder="Email address" required>
+    <input id="phone" type="tel" placeholder="Phone number" required>
+    <input id="password" type="password"
+      placeholder="Create password" minlength="8" required>
+    <button type="submit">Create Your Account</button>
+  </form>
 
-<main id="dashboard">
-<h2>Welcome to Perkpop!</h2>
-<p>Your account is ready.</p>
-<div class="balance">
-<p>Your points</p>
-<strong id="points">0</strong>
+  <p id="message"></p>
+  <p>Already have an account? <a href="#" id="login">Log in</a></p>
 </div>
-<p>More games and tasks are coming soon!</p>
-<button onclick="logout()">Log out</button>
-</main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "PASTE_WEB_API_KEY_HERE",
-  authDomain: "PASTE_AUTH_DOMAIN_HERE",
-  projectId: "perkpop-93311",
-  appId: "PASTE_WEB_APP_ID_HERE"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-const message = document.getElementById("message");
-
-window.register = async () => {
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  if (!name || !email || password.length < 6) {
-    message.textContent = "Enter your name, email and a password of at least 6 characters.";
-    return;
-  }
-
-  try {
-    const result = await createUserWithEmailAndPassword(auth,email,password);
-    await setDoc(doc(db,"users",result.user.uid),{
-      name,email,points:0
-    });
-  } catch(error) {
-    message.textContent = error.message;
-  }
-};
-
-window.login = async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth,email,password);
-  } catch(error) {
-    message.textContent = error.message;
-  }
-};
-
-window.logout = () => signOut(auth);
-
-onAuthStateChanged(auth, async user => {
-  document.getElementById("auth").style.display = user ? "none" : "block";
-  document.getElementById("dashboard").style.display = user ? "block" : "none";
-
-  if(user) {
-    try {
-      const profile = await getDoc(doc(db,"users",user.uid));
-      document.getElementById("points").textContent =
-        profile.exists() ? profile.data().points : 0;
-    } catch(error) {
-      document.getElementById("points").textContent = "Unavailable";
-    }
-  }
+<script>
+document.getElementById("registerForm")
+.addEventListener("submit", function(event) {
+  event.preventDefault();
+  document.getElementById("message").textContent =
+  "Registration design ready! Connect Firebase to create secure accounts.";
+});
+document.getElementById("login").addEventListener("click", function(event) {
+  event.preventDefault();
+  document.getElementById("message").textContent =
+  "Login will be available after Firebase setup.";
 });
 </script>
 </body>
