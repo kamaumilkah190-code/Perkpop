@@ -3,155 +3,117 @@ index.html
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Perkpop - Play Earn Enjoy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perkpop - Earn Points</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f5efff;font-family:Arial;color:#302044}
-header{background:#7029c7;color:white;text-align:center;padding:25px}
-main{max-width:430px;margin:25px auto;padding:15px}
-.card{background:white;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 4px 15px #ddd}
-h2{color:#7029c7}
-input{width:100%;padding:14px;margin:9px 0;border:1px solid #ddd;border-radius:10px;font-size:15px}
-button{width:100%;padding:14px;margin-top:10px;border:0;border-radius:10px;background:#7029c7;color:white;font-size:16px}
-.secondary{background:#eee;color:#7029c7}
-.points{background:#7029c7;color:white;padding:22px;text-align:center;border-radius:15px}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f1ff;color:#24134b}
+header{background:#6428c9;color:white;padding:22px;text-align:center}
+header h1{margin:0;font-size:30px}
+main{max-width:420px;margin:35px auto;padding:25px;background:white;border-radius:18px;box-shadow:0 5px 25px #ddd}
+h2{text-align:center;color:#6428c9}
+p{text-align:center;color:#665b79}
+input{width:100%;padding:14px;margin:9px 0;border:1px solid #ddd;border-radius:9px;font-size:16px}
+button{width:100%;padding:14px;background:#6428c9;color:white;border:0;border-radius:9px;font-size:16px;margin-top:12px}
+button.secondary{background:#eee;color:#6428c9}
 #dashboard{display:none}
-.error{color:#c0392b}
+.balance{background:#f0e8ff;padding:20px;border-radius:12px;text-align:center;margin:20px 0}
+.balance strong{font-size:32px;color:#6428c9}
+#message{font-size:14px;color:#b00020}
 </style>
 </head>
 <body>
 <header>
-<h1>💜 PERKPOP</h1>
-<p>Play • Earn • Enjoy</p>
+<h1>💜 Perkpop</h1>
+<p style="color:white">Play. Complete tasks. Earn points.</p>
 </header>
 
-<main>
-<div class="card" id="auth">
-<h2 id="heading">Create Account</h2>
+<main id="auth">
+<h2>Create your account</h2>
+<p>Join Perkpop today!</p>
+<input id="name" placeholder="Your name">
+<input id="email" type="email" placeholder="Email address">
+<input id="password" type="password" placeholder="Password">
+<button onclick="register()">Create account</button>
+<button class="secondary" onclick="login()">Login instead</button>
+<p id="message"></p>
+</main>
 
-<form id="registerForm">
-<input id="name" placeholder="Full name" required>
-<input id="email" type="email" placeholder="Email address" required>
-<input id="password" type="password" placeholder="Password (6+ characters)" minlength="6" required>
-<button id="submit" type="submit">Create Account</button>
-</form>
-
-<button class="secondary" id="switch">Already registered? Login</button>
-<p id="message" class="error"></p>
+<main id="dashboard">
+<h2>Welcome to Perkpop!</h2>
+<p>Your account is ready.</p>
+<div class="balance">
+<p>Your points</p>
+<strong id="points">0</strong>
 </div>
-
-<div id="dashboard">
-<div class="card">
-<h2>Welcome to Perkpop! 🎉</h2>
-<p id="welcome"></p>
-<div class="points">
-<h3>Your Points</h3>
-<h1 id="balance">0</h1>
-</div>
-</div>
-
-<div class="card">
-<h2>Earn Points</h2>
-<p>📺 Watch advertisements</p>
-<p>🎮 Play games</p>
-<p>📝 Complete surveys</p>
-<p>These tasks will be activated after reward providers are connected.</p>
-</div>
-
-<div class="card">
-<h2>🎁 Rewards</h2>
-<p>Reward redemption coming soon!</p>
-</div>
-<button id="logout">Logout</button>
-</div>
+<p>More games and tasks are coming soon!</p>
+<button onclick="logout()">Log out</button>
 </main>
 
 <script type="module">
-import {initializeApp}
-from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-import {getAuth,onAuthStateChanged,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,signOut}
-from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-import {getFirestore,doc,setDoc,getDoc}
-from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-// ADD YOUR FIREBASE CONFIGURATION HERE
 const firebaseConfig = {
-apiKey:"YOUR_API_KEY",
-authDomain:"YOUR_AUTH_DOMAIN",
-projectId:"YOUR_PROJECT_ID",
-appId:"YOUR_APP_ID"
+  apiKey: "PASTE_WEB_API_KEY_HERE",
+  authDomain: "PASTE_AUTH_DOMAIN_HERE",
+  projectId: "perkpop-93311",
+  appId: "PASTE_WEB_APP_ID_HERE"
 };
 
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-let registering=true;
+const message = document.getElementById("message");
 
-const form=document.getElementById("registerForm");
-const message=document.getElementById("message");
+window.register = async () => {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-document.getElementById("switch").onclick=()=>{
-registering=!registering;
-document.getElementById("heading").textContent=
-registering?"Create Account":"Welcome Back";
-document.getElementById("submit").textContent=
-registering?"Create Account":"Login";
-document.getElementById("name").style.display=
-registering?"block":"none";
-document.getElementById("switch").textContent=
-registering?"Already registered? Login":"Create an account";
-message.textContent="";
+  if (!name || !email || password.length < 6) {
+    message.textContent = "Enter your name, email and a password of at least 6 characters.";
+    return;
+  }
+
+  try {
+    const result = await createUserWithEmailAndPassword(auth,email,password);
+    await setDoc(doc(db,"users",result.user.uid),{
+      name,email,points:0
+    });
+  } catch(error) {
+    message.textContent = error.message;
+  }
 };
 
-form.onsubmit=async(e)=>{
-e.preventDefault();
-message.textContent="Please wait...";
+window.login = async () => {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  try {
+    await signInWithEmailAndPassword(auth,email,password);
+  } catch(error) {
+    message.textContent = error.message;
+  }
+};
 
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value;
-const name=document.getElementById("name").value.trim();
+window.logout = () => signOut(auth);
 
-try{
-if(registering){
-const result=await createUserWithEmailAndPassword(auth,email,password);
-await setDoc(doc(db,"users",result.user.uid),{
-name:name,
-email:email,
-points:0
+onAuthStateChanged(auth, async user => {
+  document.getElementById("auth").style.display = user ? "none" : "block";
+  document.getElementById("dashboard").style.display = user ? "block" : "none";
+
+  if(user) {
+    try {
+      const profile = await getDoc(doc(db,"users",user.uid));
+      document.getElementById("points").textContent =
+        profile.exists() ? profile.data().points : 0;
+    } catch(error) {
+      document.getElementById("points").textContent = "Unavailable";
+    }
+  }
 });
-}else{
-await signInWithEmailAndPassword(auth,email,password);
-}
-message.textContent="";
-}catch(error){
-message.textContent=error.message;
-}
-};
-
-onAuthStateChanged(auth,async(user)=>{
-if(user){
-document.getElementById("auth").style.display="none";
-document.getElementById("dashboard").style.display="block";
-document.getElementById("welcome").textContent=user.email;
-
-const userDoc=await getDoc(doc(db,"users",user.uid));
-if(userDoc.exists()){
-document.getElementById("balance").textContent=
-userDoc.data().points ?? 0;
-}
-}else{
-document.getElementById("auth").style.display="block";
-document.getElementById("dashboard").style.display="none";
-}
-});
-
-document.getElementById("logout").onclick=()=>signOut(auth);
 </script>
 </body>
 </html>
