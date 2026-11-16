@@ -3,253 +3,155 @@ index.html
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perkpop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perkpop - Play Earn Enjoy</title>
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f6f2ff;
-  color:#29213b;
-}
-header{
-  background:#7029c7;
-  color:white;
-  padding:24px;
-  text-align:center;
-}
-main{
-  max-width:430px;
-  margin:25px auto;
-  padding:18px;
-}
-.card{
-  background:white;
-  padding:22px;
-  border-radius:16px;
-  margin-bottom:18px;
-  box-shadow:0 3px 12px #ddd;
-}
+body{margin:0;background:#f5efff;font-family:Arial;color:#302044}
+header{background:#7029c7;color:white;text-align:center;padding:25px}
+main{max-width:430px;margin:25px auto;padding:15px}
+.card{background:white;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 4px 15px #ddd}
 h2{color:#7029c7}
-input{
-  width:100%;
-  padding:13px;
-  margin:8px 0;
-  border:1px solid #ddd;
-  border-radius:9px;
-}
-button{
-  width:100%;
-  padding:13px;
-  margin-top:10px;
-  border:0;
-  border-radius:9px;
-  background:#7029c7;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-}
+input{width:100%;padding:14px;margin:9px 0;border:1px solid #ddd;border-radius:10px;font-size:15px}
+button{width:100%;padding:14px;margin-top:10px;border:0;border-radius:10px;background:#7029c7;color:white;font-size:16px}
 .secondary{background:#eee;color:#7029c7}
+.points{background:#7029c7;color:white;padding:22px;text-align:center;border-radius:15px}
 #dashboard{display:none}
-.points{
-  background:#7029c7;
-  color:white;
-  padding:25px;
-  text-align:center;
-  border-radius:15px;
-}
-#message{color:#c0392b}
-.small{text-align:center;font-size:13px}
+.error{color:#c0392b}
 </style>
 </head>
 <body>
-
 <header>
-  <h1>💜 PERKPOP</h1>
-  <p>Play • Earn • Enjoy</p>
+<h1>💜 PERKPOP</h1>
+<p>Play • Earn • Enjoy</p>
 </header>
 
 <main>
-
 <div class="card" id="auth">
-  <h2 id="formTitle">Create Account</h2>
+<h2 id="heading">Create Account</h2>
 
-  <form id="authForm">
-    <input id="email" type="email"
-      placeholder="Email address" required>
+<form id="registerForm">
+<input id="name" placeholder="Full name" required>
+<input id="email" type="email" placeholder="Email address" required>
+<input id="password" type="password" placeholder="Password (6+ characters)" minlength="6" required>
+<button id="submit" type="submit">Create Account</button>
+</form>
 
-    <input id="password" type="password"
-      placeholder="Password (at least 6 characters)"
-      minlength="6" required>
-
-    <button id="submitBtn" type="submit">
-      Register
-    </button>
-  </form>
-
-  <button class="secondary" id="switchBtn">
-    Already have an account? Login
-  </button>
-
-  <p id="message"></p>
+<button class="secondary" id="switch">Already registered? Login</button>
+<p id="message" class="error"></p>
 </div>
 
 <div id="dashboard">
-
-  <div class="card">
-    <h2>Welcome to Perkpop! 🎉</h2>
-    <p id="userEmail"></p>
-
-    <div class="points">
-      <h3>Your Points</h3>
-      <h1 id="points">0</h1>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Earn Points</h2>
-    <p>🎮 Play Games</p>
-    <p>📺 Watch Ads</p>
-    <p>📝 Complete Surveys</p>
-    <p class="small">Tasks will become available after verified
-    reward providers and secure point verification are connected.</p>
-  </div>
-
-  <div class="card">
-    <h2>🎁 Rewards</h2>
-    <p>Your rewards will appear here.</p>
-    <p>Rewards are coming soon!</p>
-  </div>
-
-  <button id="logoutBtn">Logout</button>
-
+<div class="card">
+<h2>Welcome to Perkpop! 🎉</h2>
+<p id="welcome"></p>
+<div class="points">
+<h3>Your Points</h3>
+<h1 id="balance">0</h1>
+</div>
 </div>
 
+<div class="card">
+<h2>Earn Points</h2>
+<p>📺 Watch advertisements</p>
+<p>🎮 Play games</p>
+<p>📝 Complete surveys</p>
+<p>These tasks will be activated after reward providers are connected.</p>
+</div>
+
+<div class="card">
+<h2>🎁 Rewards</h2>
+<p>Reward redemption coming soon!</p>
+</div>
+<button id="logout">Logout</button>
+</div>
 </main>
 
 <script type="module">
-import { initializeApp }
+import {initializeApp}
 from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {getAuth,onAuthStateChanged,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,signOut}
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  onSnapshot,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {getFirestore,doc,setDoc,getDoc}
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// REPLACE THESE VALUES WITH YOUR FIREBASE CONFIGURATION
+// ADD YOUR FIREBASE CONFIGURATION HERE
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  appId: "YOUR_APP_ID"
+apiKey:"YOUR_API_KEY",
+authDomain:"YOUR_AUTH_DOMAIN",
+projectId:"YOUR_PROJECT_ID",
+appId:"YOUR_APP_ID"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-let isRegister = true;
-let stopListening = null;
+let registering=true;
 
-const authBox = document.getElementById("auth");
-const dashboard = document.getElementById("dashboard");
-const message = document.getElementById("message");
+const form=document.getElementById("registerForm");
+const message=document.getElementById("message");
 
-document.getElementById("switchBtn").onclick = () => {
-  isRegister = !isRegister;
-  document.getElementById("formTitle").textContent =
-    isRegister ? "Create Account" : "Welcome Back";
-
-  document.getElementById("submitBtn").textContent =
-    isRegister ? "Register" : "Login";
-
-  document.getElementById("switchBtn").textContent =
-    isRegister ? "Already have an account? Login"
-    : "Need an account? Register";
-
-  message.textContent = "";
+document.getElementById("switch").onclick=()=>{
+registering=!registering;
+document.getElementById("heading").textContent=
+registering?"Create Account":"Welcome Back";
+document.getElementById("submit").textContent=
+registering?"Create Account":"Login";
+document.getElementById("name").style.display=
+registering?"block":"none";
+document.getElementById("switch").textContent=
+registering?"Already registered? Login":"Create an account";
+message.textContent="";
 };
 
-document.getElementById("authForm").onsubmit =
-async (event) => {
-  event.preventDefault();
-  message.textContent = "Please wait...";
+form.onsubmit=async(e)=>{
+e.preventDefault();
+message.textContent="Please wait...";
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
+const name=document.getElementById("name").value.trim();
 
-  try {
-    if (isRegister) {
-      const result = await createUserWithEmailAndPassword(
-        auth, email, password
-      );
-
-      await setDoc(doc(db, "users", result.user.uid), {
-        email: result.user.email,
-        points: 0,
-        createdAt: serverTimestamp()
-      });
-
-    } else {
-      await signInWithEmailAndPassword(auth, email, password);
-    }
-
-    message.textContent = "";
-
-  } catch (error) {
-    message.textContent = error.message;
-  }
+try{
+if(registering){
+const result=await createUserWithEmailAndPassword(auth,email,password);
+await setDoc(doc(db,"users",result.user.uid),{
+name:name,
+email:email,
+points:0
+});
+}else{
+await signInWithEmailAndPassword(auth,email,password);
+}
+message.textContent="";
+}catch(error){
+message.textContent=error.message;
+}
 };
 
-onAuthStateChanged(auth, (user) => {
-  if (stopListening) {
-    stopListening();
-    stopListening = null;
-  }
+onAuthStateChanged(auth,async(user)=>{
+if(user){
+document.getElementById("auth").style.display="none";
+document.getElementById("dashboard").style.display="block";
+document.getElementById("welcome").textContent=user.email;
 
-  if (user) {
-    authBox.style.display = "none";
-    dashboard.style.display = "block";
-
-    document.getElementById("userEmail").textContent =
-      user.email;
-
-    const userRef = doc(db, "users", user.uid);
-
-    stopListening = onSnapshot(userRef, (snapshot) => {
-      if (snapshot.exists()) {
-        document.getElementById("points").textContent =
-          snapshot.data().points ?? 0;
-      } else {
-        document.getElementById("points").textContent = "0";
-      }
-    }, (error) => {
-      message.textContent = error.message;
-    });
-
-  } else {
-    authBox.style.display = "block";
-    dashboard.style.display = "none";
-  }
+const userDoc=await getDoc(doc(db,"users",user.uid));
+if(userDoc.exists()){
+document.getElementById("balance").textContent=
+userDoc.data().points ?? 0;
+}
+}else{
+document.getElementById("auth").style.display="block";
+document.getElementById("dashboard").style.display="none";
+}
 });
 
-document.getElementById("logoutBtn").onclick = async () => {
-  await signOut(auth);
-};
+document.getElementById("logout").onclick=()=>signOut(auth);
 </script>
-
 </body>
 </html>
-
